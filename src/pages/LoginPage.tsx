@@ -1,9 +1,9 @@
-// LoginPage.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import api from '../services/api'; // Импортируем axios-инстанс
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api'; 
+import { toast } from 'react-toastify'; 
 
-// Стили для страницы
 const LoginPageContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -69,12 +69,12 @@ const ErrorMessage = styled.div`
   font-size: 14px;
 `;
 
-// Обновленный тип пропсов для компонента LoginPage
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: (accessToken: string, refreshToken: string) => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -89,19 +89,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     }
 
     try {
-      // Отправка запроса на бэкенд для логина
-      const response = await api.post('auth/login/', {
-        username,
-        password,
-      });
+      const response = await api.post('auth/login/', { username, password });
 
-      // Пример успешной авторизации
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
-        window.location.href = '/profile'; // Перенаправляем на страницу профиля
+      if (response.data.access && response.data.refresh) {
+        localStorage.setItem('accessToken', response.data.access);
+        localStorage.setItem('refreshToken', response.data.refresh);
+        onLogin(response.data.access, response.data.refresh);
+        toast.success('Logged in successfully');
+        navigate('/info');
+      } else {
+        setError('Invalid credentials');
       }
     } catch (err) {
-      setError('Invalid credentials'); // Если ошибка, показываем сообщение
+      setError('Invalid credentials');
+      toast.error('Invalid credentials');
     }
   };
 
@@ -118,19 +119,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     }
 
     try {
-      // Отправка запроса на бэкенд для регистрации
-      const response = await api.post('auth/register/', {
-        username,
-        password,
-      });
+      const response = await api.post('auth/register/', { username, password });
 
-      // Пример успешной регистрации
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
-        window.location.href = '/profile'; // Перенаправляем на страницу профиля
+      if (response.data.access && response.data.refresh) {
+        localStorage.setItem('accessToken', response.data.access);
+        localStorage.setItem('refreshToken', response.data.refresh);
+        onLogin(response.data.access, response.data.refresh);
+        toast.success('Registered successfully');
+        navigate('/profile');
       }
     } catch (err) {
-      setError('Registration failed'); // Если ошибка, показываем сообщение
+      setError('Registration failed');
+      toast.error('Registration failed');
     }
   };
 
@@ -162,8 +162,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           )}
           <Button type="submit">{isRegistering ? 'Register' : 'Login'}</Button>
         </form>
-        <SwitchModeButton onClick={() => setIsRegistering(!isRegistering)}>
-          {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
+        <SwitchModeButton onClick={() => setIsRegistering((prev) => !prev)}>
+          {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
         </SwitchModeButton>
       </LoginCard>
     </LoginPageContainer>

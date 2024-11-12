@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { GlobalStyle } from './styles/globalStyles';
 import { lightTheme, darkTheme } from './styles/themes';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Header from './layouts/Header';
 import Sidebar from './layouts/Sidebar';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import InfoPage from './pages/InfoPage';
-import { ToastContainer, toast } from 'react-toastify'; // Импортируем toast
+import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
 
 const App: React.FC = () => {
   const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
   const [theme, setTheme] = useState<'light' | 'dark'>(savedTheme || 'light');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('token'));
-  
-  // Получаем текущий маршрут
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('accessToken'));
+
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -31,27 +31,26 @@ const App: React.FC = () => {
       toast.error('Please log in first');
       return;
     }
-    // Переключаем состояние меню (открыть/закрыть)
     setSidebarOpen((prevState) => !prevState);
   };
 
   const closeSidebar = () => {
-    setSidebarOpen(false); // Закрыть меню
+    setSidebarOpen(false);
   };
 
-  const handleLogin = () => {
+  const handleLogin = (accessToken: string, refreshToken: string) => {
     setIsAuthenticated(true);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
     toast.success('Logged in successfully');
+    navigate('/profile');
   };
 
-  // Условие для скрытия шапки на страницах логина и регистрации
   const hideHeader = location.pathname === '/' || location.pathname === '/register';
 
   return (
     <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme}>
       <GlobalStyle />
-      
-      {/* Условно рендерим Header */}
       {!hideHeader && (
         <Header
           onToggleTheme={toggleTheme}
@@ -66,7 +65,6 @@ const App: React.FC = () => {
       
       <Routes>
         <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-        {/* Добавьте путь для страницы регистрации, если нужно */}
         <Route path="/register" element={<LoginPage onLogin={handleLogin} />} />
         <Route path="/profile" element={isAuthenticated ? <ProfilePage /> : <Navigate to="/" />} />
         <Route path="/info" element={isAuthenticated ? <InfoPage /> : <Navigate to="/" />} />
