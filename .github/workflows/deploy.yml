@@ -18,7 +18,7 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install sshpass
 
-      # 3. Сборка Docker-образа
+      # 3. Сборка Docker-образа локально
       - name: Build Docker image
         run: |
           docker build -t react-app .
@@ -28,7 +28,12 @@ jobs:
         run: |
           sshpass -p "${{ secrets.PASSWORD_VDS }}" scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }}:/root/apps/Frontend
 
-      # 5. Деплой на сервер
+      # 5. Копирование Docker-образа на сервер
+      - name: Copy Docker image to server
+        run: |
+          docker save react-app | sshpass -p "${{ secrets.PASSWORD_VDS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }} "docker load"
+
+      # 6. Деплой на сервер
       - name: Deploy to server
         run: |
           sshpass -p "${{ secrets.PASSWORD_VDS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }} "cd /root/apps/Frontend && docker-compose down && docker-compose up -d"
