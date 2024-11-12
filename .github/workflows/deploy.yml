@@ -1,0 +1,36 @@
+name: Deploy React App
+
+on:
+  push:
+    branches:
+      - main  # Замените на ветку, которую хотите использовать
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Проверка репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Настройка SSH для соединения с сервером
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Используем приватный ключ для SSH-подключения
+
+      # 3. Сборка Docker-образа
+      - name: Build Docker image
+        run: |
+          docker build -t react-app .
+
+      # 4. Копирование docker-compose.yml на сервер
+      - name: Copy docker-compose.yml to server
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.yml user@your_server_ip:/path/to/your/project
+
+      # 5. Деплой на сервер
+      - name: Deploy to server
+        run: |
+          ssh user@your_server_ip "cd /path/to/your/project && docker-compose down && docker-compose up -d"

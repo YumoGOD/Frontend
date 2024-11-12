@@ -1,0 +1,31 @@
+export const lightTheme = {
+  background: '#ffffff',
+  textColor: '#000000',
+  headerBackground: '#f1f1f1',
+  logoColor: '#000000',
+  sidebarBackground: '#ffffff',
+  sidebarText: '#000000',
+  sidebarHover: '#555555',
+  buttonBackground: '#4CAF50',
+  buttonHover: '#45a049',
+  inputBackground: '#fff',
+  inputBorder: '#ccc',
+  pageBackground: '#f4f4f4',
+  cardBackground: '#fff',
+};
+
+export const darkTheme = {
+  background: '#181818',
+  textColor: '#ffffff',
+  headerBackground: '#333333',
+  logoColor: '#ffffff',
+  sidebarBackground: '#222222',
+  sidebarText: '#ffffff',
+  sidebarHover: '#444444',
+  buttonBackground: '#008CBA',
+  buttonHover: '#005f73',
+  inputBackground: '#333',
+  inputBorder: '#555',
+  pageBackground: '#121212',
+  cardBackground: '#222',
+};
