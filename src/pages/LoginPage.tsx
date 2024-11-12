@@ -1,6 +1,9 @@
+// LoginPage.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import api from '../services/api'; // Импортируем axios-инстанс
 
+// Стили для страницы
 const LoginPageContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -66,7 +69,7 @@ const ErrorMessage = styled.div`
   font-size: 14px;
 `;
 
-// Обновляем тип пропсов для компонента LoginPage
+// Обновленный тип пропсов для компонента LoginPage
 interface LoginPageProps {
   onLogin: () => void;
 }
@@ -78,22 +81,31 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) {
       setError('Please fill in all fields');
       return;
     }
 
-    // Пример успешной авторизации
-    console.log('Login with', username, password);
+    try {
+      // Отправка запроса на бэкенд для логина
+      const response = await api.post('auth/login/', {
+        username,
+        password,
+      });
 
-    // Assuming login is successful:
-    localStorage.setItem('token', 'your-auth-token'); // Save the token to localStorage
-    window.location.href = '/profile'; // Redirect to profile page or home
+      // Пример успешной авторизации
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
+        window.location.href = '/profile'; // Перенаправляем на страницу профиля
+      }
+    } catch (err) {
+      setError('Invalid credentials'); // Если ошибка, показываем сообщение
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password || !confirmPassword) {
       setError('Please fill in all fields');
@@ -105,12 +117,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       return;
     }
 
-    // Пример успешной регистрации
-    console.log('Register with', username, password);
+    try {
+      // Отправка запроса на бэкенд для регистрации
+      const response = await api.post('auth/register/', {
+        username,
+        password,
+      });
 
-    // Assuming registration is successful:
-    localStorage.setItem('token', 'your-auth-token'); // Save the token to localStorage
-    window.location.href = '/profile'; // Redirect to profile page or home
+      // Пример успешной регистрации
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token); // Сохраняем токен в localStorage
+        window.location.href = '/profile'; // Перенаправляем на страницу профиля
+      }
+    } catch (err) {
+      setError('Registration failed'); // Если ошибка, показываем сообщение
+    }
   };
 
   return (
