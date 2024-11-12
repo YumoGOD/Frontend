@@ -26,9 +26,9 @@ jobs:
       # 4. Копирование docker-compose.yml на сервер
       - name: Copy docker-compose.yml to server
         run: |
-          sshpass -p "${{ secrets.PASSWORD_VDS }}" scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }}:~/apps/Frontend
+          sshpass -p "${{ secrets.PASSWORD_VDS }}" scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }}:/root/apps/Frontend
 
       # 5. Деплой на сервер
       - name: Deploy to server
         run: |
-          sshpass -p "${{ secrets.PASSWORD_VDS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }} "cd ~/apps/Frontend && docker-compose down && docker-compose up -d"
+          sshpass -p "${{ secrets.PASSWORD_VDS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }} "cd /root/apps/Frontend && docker-compose down && docker-compose up -d"
