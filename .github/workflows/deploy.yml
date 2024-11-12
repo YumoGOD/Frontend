@@ -14,11 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Настройка SSH для соединения с сервером
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Используем приватный ключ для SSH-подключения
+      # 2. Установка sshpass
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
 
       # 3. Сборка Docker-образа
       - name: Build Docker image
@@ -28,9 +26,9 @@ jobs:
       # 4. Копирование docker-compose.yml на сервер
       - name: Copy docker-compose.yml to server
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml user@your_server_ip:/path/to/your/project
+          sshpass -p "${{ secrets.PASSWORD_VDS }}" scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }}:/path/to/your/project
 
       # 5. Деплой на сервер
       - name: Deploy to server
         run: |
-          ssh user@your_server_ip "cd /path/to/your/project && docker-compose down && docker-compose up -d"
+          sshpass -p "${{ secrets.PASSWORD_VDS }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USER_VDS }}@${{ secrets.IP_VDS }} "cd /path/to/your/project && docker-compose down && docker-compose up -d"
