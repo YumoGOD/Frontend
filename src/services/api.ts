@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://blizhe.online/api/',
+  baseURL: 'https://blizhe.online/api/',
 });
 
 // Перехватчик запросов
