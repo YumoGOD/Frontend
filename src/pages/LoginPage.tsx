@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; 
-import { toast } from 'react-toastify'; 
+import api from '../services/api';
+import { toast } from 'react-toastify';
 
 const LoginPageContainer = styled.div`
   display: flex;
@@ -127,7 +127,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
         toast.success('Registered and logged in successfully');
-        navigate('/profile');
+        navigate('/profile'); // Переход на страницу профиля после регистрации и логина
       }
     } catch (err) {
       setError('Registration failed');
