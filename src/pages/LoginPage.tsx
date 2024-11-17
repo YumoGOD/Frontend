@@ -95,7 +95,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
-        navigate('/info');
+        navigate('/profile');
       } else {
         setError('Invalid credentials');
       }
