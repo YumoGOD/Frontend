@@ -95,7 +95,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
-        toast.success('Logged in successfully');
         navigate('/info');
       } else {
         setError('Invalid credentials');
@@ -122,10 +121,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       const response = await api.post('auth/register/', { username, password });
 
       if (response.data.access && response.data.refresh) {
+        // Сразу выполняем вход после успешной регистрации
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
-        toast.success('Registered successfully');
         navigate('/profile');
       }
     } catch (err) {
