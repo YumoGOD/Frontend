@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://95.142.46.28:8000/api/',
+  baseURL: 'http://109.172.86.34/api/',
 });
 
 // Перехватчик запросов
