@@ -95,6 +95,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
+        toast.success('Logged in successfully');
         navigate('/profile');
       } else {
         setError('Invalid credentials');
@@ -125,6 +126,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         localStorage.setItem('accessToken', response.data.access);
         localStorage.setItem('refreshToken', response.data.refresh);
         onLogin(response.data.access, response.data.refresh);
+        toast.success('Registered and logged in successfully');
         navigate('/profile');
       }
     } catch (err) {
