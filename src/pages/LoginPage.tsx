@@ -90,13 +90,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setError('');
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
+  const handleLogin = async () => {
     try {
       const response = await api.post('auth/login/', { username, password });
       const { access, refresh } = response.data;
@@ -130,9 +124,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
     try {
       await api.post('auth/register/', { username, password });
-      toast.success('Registered successfully. Please log in.');
-      clearForm();
-      setIsRegistering(false); // Переключаемся на форму входа после успешной регистрации
+      toast.success('Registered successfully. Logging in...');
+
+      // Попытка автоматического входа после успешной регистрации
+      await handleLogin();
     } catch (err) {
       setError('Registration failed');
       toast.error('Registration failed');
@@ -144,7 +139,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       <LoginCard>
         <h2>{isRegistering ? 'Register' : 'Login'}</h2>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <form onSubmit={isRegistering ? handleRegister : handleLogin}>
+        <form onSubmit={isRegistering ? handleRegister : (e) => { e.preventDefault(); handleLogin(); }}>
           <Input
             type="text"
             placeholder="Username"
