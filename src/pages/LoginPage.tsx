@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
+// Стили компонентов
 const LoginPageContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -73,6 +74,7 @@ interface LoginPageProps {
   onLogin: (accessToken: string, refreshToken: string) => void;
 }
 
+// Основной компонент страницы
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -80,6 +82,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
+
+  const clearForm = () => {
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setError('');
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,11 +99,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
     try {
       const response = await api.post('auth/login/', { username, password });
+      const { access, refresh } = response.data;
 
-      if (response.data.access && response.data.refresh) {
-        localStorage.setItem('accessToken', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh);
-        onLogin(response.data.access, response.data.refresh);
+      if (access && refresh) {
+        localStorage.setItem('accessToken', access);
+        localStorage.setItem('refreshToken', refresh);
+        onLogin(access, refresh);
         toast.success('Logged in successfully');
         navigate('/profile');
       } else {
@@ -119,16 +129,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     }
 
     try {
-      const response = await api.post('auth/register/', { username, password });
-
-      if (response.data.access && response.data.refresh) {
-        // Сразу выполняем вход после успешной регистрации
-        localStorage.setItem('accessToken', response.data.access);
-        localStorage.setItem('refreshToken', response.data.refresh);
-        onLogin(response.data.access, response.data.refresh);
-        toast.success('Registered and logged in successfully');
-        navigate('/profile'); // Переход на страницу профиля после регистрации и логина
-      }
+      await api.post('auth/register/', { username, password });
+      toast.success('Registered successfully. Please log in.');
+      clearForm();
+      setIsRegistering(false); // Переключаемся на форму входа после успешной регистрации
     } catch (err) {
       setError('Registration failed');
       toast.error('Registration failed');
@@ -163,7 +167,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           )}
           <Button type="submit">{isRegistering ? 'Register' : 'Login'}</Button>
         </form>
-        <SwitchModeButton onClick={() => setIsRegistering((prev) => !prev)}>
+        <SwitchModeButton onClick={() => {
+          setIsRegistering((prev) => !prev);
+          clearForm();
+        }}>
           {isRegistering ? 'Already have an account? Login' : 'Don’t have an account? Register'}
         </SwitchModeButton>
       </LoginCard>
